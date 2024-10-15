@@ -2,6 +2,7 @@ package firevault
 
 import (
 	"context"
+	"errors"
 
 	"cloud.google.com/go/firestore"
 )
@@ -35,15 +36,27 @@ func Connect(ctx context.Context, projectID string) (*Connection, error) {
 //
 // Close need not be called at program exit.
 func (c *Connection) Close() error {
+	if c == nil || c.client == nil {
+		return errors.New("firevault: nil Connection or Firestore Client")
+	}
+
 	return c.client.Close()
 }
 
 // Register a new validation rule.
 func (c *Connection) RegisterValidation(name string, validation ValidationFn) error {
+	if c == nil {
+		return errors.New("firevault: nil Connection")
+	}
+
 	return c.validator.registerValidation(name, validation)
 }
 
 // Register a new transformation rule.
 func (c *Connection) RegisterTransformation(name string, transformation TransformationFn) error {
+	if c == nil {
+		return errors.New("firevault: nil Connection")
+	}
+
 	return c.validator.registerTransformation(name, transformation)
 }
