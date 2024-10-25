@@ -93,7 +93,12 @@ func (c *CollectionRef[T]) Create(ctx context.Context, data *T, opts ...Options)
 }
 
 // Update all Firestore documents which match provided Query
-// (after data validation). The operation is not atomic.
+// (after data validation).
+//
+// If Query contains an ID clause and no documents are matched,
+// a new document will be created for each provided ID.
+//
+// The operation is not atomic.
 func (c *CollectionRef[T]) Update(ctx context.Context, query Query, data *T, opts ...Options) error {
 	if c == nil {
 		return errors.New("firevault: nil CollectionRef")
