@@ -149,6 +149,9 @@ func (c *CollectionRef[T]) Find(ctx context.Context, query Query) ([]Document[T]
 }
 
 // Find the first Firestore document which matches provided Query.
+//
+// Returns an empty Document[T] (empty ID string and
+// zero-value T Data), and no error if no documents are found.
 func (c *CollectionRef[T]) FindOne(ctx context.Context, query Query) (Document[T], error) {
 	if c == nil {
 		return Document[T]{}, errors.New("firevault: nil CollectionRef")
@@ -160,12 +163,20 @@ func (c *CollectionRef[T]) FindOne(ctx context.Context, query Query) (Document[T
 			return Document[T]{}, err
 		}
 
+		if len(docs) == 0 {
+			return Document[T]{}, nil
+		}
+
 		return docs[0], nil
 	}
 
 	docs, err := c.fetchDocsByQuery(ctx, query.Limit(1))
 	if err != nil {
 		return Document[T]{}, err
+	}
+
+	if len(docs) == 0 {
+		return Document[T]{}, nil
 	}
 
 	return docs[0], nil
@@ -390,6 +401,10 @@ func (c *CollectionRef[T]) fetchDocsByID(ctx context.Context, ids []string) ([]D
 		}
 
 		for _, docSnap := range snapshots {
+			if !docSnap.Exists() {
+				continue
+			}
+
 			var doc T
 
 			err = docSnap.DataTo(&doc)
