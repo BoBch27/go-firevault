@@ -388,12 +388,14 @@ if err != nil {
 fmt.Println(users) // []Document[User]
 fmt.Println(users[0].ID) // 6QVHL46WCE680ZG2Xn3X
 ```
-- `FindOne` - A method which gets the first Firestore document which matches the provided `Query`. 
+- `FindOne` - A method which gets the first Firestore document which matches the provided `Query`. Returns an empty Document[T] (empty ID string and zero-value T Data), and no error if no documents are found.
 	- *Expects*:
 		- ctx: A context.
 		- query: A `Query` to filter and order documents.
 	- *Returns*:
-		- doc: Returns the document with type `T` (the type used when initiating the collection instance).
+		- doc: Returns the document with type `Document[T]` (where `T` is the type used when initiating the collection instance). `Document[T]` has two properties.
+			- ID: A `string` which holds the document's ID.
+			- Data: The document's data of type `T`.
 		- error: An `error` in case something goes wrong during interaction with Firestore.
 ```go
 user, err := collection.FindOne(
@@ -403,7 +405,7 @@ user, err := collection.FindOne(
 if err != nil {
 	fmt.Println(err)
 } 
-fmt.Println(user) // {{Bobby Donev hello@bobbydonev.com asdasdkjahdks 26 0xc0001d05a0}}
+fmt.Println(user.Data) // {Bobby Donev hello@bobbydonev.com asdasdkjahdks 26 0xc0001d05a0}
 ```
 - `Count` - A method which gets the number of Firestore documents which match the provided query.
 	- *Expects*:
